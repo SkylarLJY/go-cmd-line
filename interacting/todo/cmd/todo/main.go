@@ -12,16 +12,22 @@ import (
 
 var todoFileName = ".todo.json"
 
-func getTask(r io.Reader, args ...string) (string, error) {
+func getTasks(r io.Reader, args ...string) ([]string, error) {
+
 	if len(args) > 0 {
-		return strings.Join(args, " "), nil
+		return []string{strings.Join(args, " ")}, nil
 	}
+
+	res := []string{}
 	s := bufio.NewScanner(r)
-	s.Scan()
-	if len(s.Text()) == 0 {
-		return "", fmt.Errorf("task cannot be enpty")
+	for s.Scan() {
+		task := s.Text()
+		if len(task) == 0 {
+			break
+		}
+		res = append(res, task)
 	}
-	return s.Text(), nil
+	return res, nil
 }
 
 func main() {
@@ -64,13 +70,15 @@ func main() {
 			os.Exit(1)
 		}
 	case *add:
-		task, err := getTask(os.Stdin, flag.Args()...)
+
+		tasks, err := getTasks(os.Stdin, flag.Args()...)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
-
-		l.Add(task)
+		for _, task := range tasks {
+			l.Add(task)
+		}
 
 		if err := l.Save(todoFileName); err != nil {
 			fmt.Fprintln(os.Stderr, err)
