@@ -60,7 +60,7 @@ func (l *List) Get(filename string) error {
 func (l *List) String() string {
 	formatted := ""
 	for k, v := range *l {
-		prefix := " "
+		prefix := "  "
 		if v.Done {
 			prefix = "X "
 		}
