@@ -1,21 +1,28 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"go-cmd-line/interacting/todo"
+	"io"
 	"os"
+	"strings"
 )
 
 var todoFileName = ".todo.json"
 
-// func init() {
-// 	_, err := os.Open(todoFileName)
-// 	if err != nil {
-// 		f, _ := os.Create(todoFileName)
-// 		f.Write([]byte("[]"))
-// 	}
-// }
+func getTask(r io.Reader, args ...string) (string, error) {
+	if len(args) > 0 {
+		return strings.Join(args, " "), nil
+	}
+	s := bufio.NewScanner(r)
+	s.Scan()
+	if len(s.Text()) == 0 {
+		return "", fmt.Errorf("task cannot be enpty")
+	}
+	return s.Text(), nil
+}
 
 func main() {
 	if os.Getenv("TODO_FILENAME") != "" {
@@ -26,7 +33,8 @@ func main() {
 		f, _ := os.Create(todoFileName)
 		f.Write([]byte("[]"))
 	}
-	task := flag.String("task", "", "Task to be added to the list")
+
+	add := flag.Bool("add", false, "Add a task to the list")
 	list := flag.Bool("list", false, "List all tasks")
 	complete := flag.Int("complete", 0, "Item to be completed")
 	flag.Parse()
@@ -49,8 +57,14 @@ func main() {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
-	case *task != "":
-		l.Add(*task)
+	case *add:
+		task, err := getTask(os.Stdin, flag.Args()...)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+
+		l.Add(task)
 
 		if err := l.Save(todoFileName); err != nil {
 			fmt.Fprintln(os.Stderr, err)
