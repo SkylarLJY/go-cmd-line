@@ -7,17 +7,25 @@ import (
 	"os"
 )
 
-const todoFileName = ".todo.json"
+var todoFileName = ".todo.json"
 
-func init() {
+// func init() {
+// 	_, err := os.Open(todoFileName)
+// 	if err != nil {
+// 		f, _ := os.Create(todoFileName)
+// 		f.Write([]byte("[]"))
+// 	}
+// }
+
+func main() {
+	if os.Getenv("TODO_FILENAME") != "" {
+		todoFileName = os.Getenv("TODO_FILENAME")
+	}
 	_, err := os.Open(todoFileName)
 	if err != nil {
 		f, _ := os.Create(todoFileName)
 		f.Write([]byte("[]"))
 	}
-}
-
-func main() {
 	task := flag.String("task", "", "Task to be added to the list")
 	list := flag.Bool("list", false, "List all tasks")
 	complete := flag.Int("complete", 0, "Item to be completed")
