@@ -68,3 +68,15 @@ func (l *List) String() string {
 	}
 	return formatted
 }
+
+func (l *List) PrintVerbose() {
+	str := ""
+	for k, v := range *l {
+		prefix := " "
+		if v.Done {
+			prefix = "X "
+		}
+		str += fmt.Sprintf("%s%d: %s - created at %v\n", prefix, k+1, v.Task, v.CreatedAt)
+	}
+	fmt.Print(str)
+}
