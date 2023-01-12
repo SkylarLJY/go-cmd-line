@@ -13,3 +13,4 @@ cleaning up temp files:
 Testing stdout outputs: pass `io.Writer` interface as a parameter, set to stdout for regular functions and buffer for testing 
 
 ## Templates
+Injects dynamic data into fixed contents.

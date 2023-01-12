@@ -30,11 +30,12 @@ const (
 )
 
 type content struct {
-	Title string
-	Body  template.HTML
+	Title    string
+	Body     template.HTML
+	FileName string
 }
 
-func parseContent(input []byte, templateFname string) ([]byte, error) {
+func parseContent(input []byte, templateFname, fName string) ([]byte, error) {
 	output := blackfriday.Run(input)
 	body := bluemonday.UGCPolicy().SanitizeBytes(output)
 
@@ -50,7 +51,7 @@ func parseContent(input []byte, templateFname string) ([]byte, error) {
 		}
 	}
 
-	c := content{"Markdown Preview", template.HTML(body)}
+	c := content{"Markdown Preview", template.HTML(body), fName}
 
 	var buffer bytes.Buffer
 	if err := t.Execute(&buffer, c); err != nil {
@@ -70,7 +71,7 @@ func run(filename, templateFname string, out io.Writer, skipPreview bool) error 
 		return err
 	}
 
-	htmlData, err := parseContent(input, templateFname)
+	htmlData, err := parseContent(input, templateFname, filename)
 	if err != nil {
 		return err
 	}
@@ -123,15 +124,16 @@ func preview(fname string) error {
 func main() {
 	filename := flag.String("file", "", "Markdown file to preview")
 	skipPreview := flag.Bool("s", false, "Skip browser preview of the generated file")
-	templateFname := flag.String("t", "", "Specify the template you want to use")
+	// templateFname := flag.String("t", "", "Specify the template you want to use")
 	flag.Parse()
+	templateFname := os.Getenv("MDP_TEMPLATE")
 
 	if *filename == "" {
 		flag.Usage()
 		os.Exit(1)
 	}
 
-	if err := run(*filename, *templateFname, os.Stdout, *skipPreview); err != nil {
+	if err := run(*filename, templateFname, os.Stdout, *skipPreview); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
