@@ -25,18 +25,27 @@ func count(r io.Reader, countLines bool, countBytes bool) int {
 func main() {
 	lines := flag.Bool("l", false, "count lines")
 	numBytes := flag.Bool("b", false, "count bytes")
-	inputFile := flag.String("f", "", "read input from file")
+	inputFiles := flag.Bool("f", false, "read input from files")
 	flag.Parse()
+
 	input := os.Stdin
-	if *inputFile != "" {
+	var res int
+	if *inputFiles {
+		files := flag.Args()
 		var err error
-		input, err = os.Open(*inputFile)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
+		for _, file := range files {
+			input, err = os.Open(file)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+			defer input.Close()
+
+			res += count(input, *lines, *numBytes)
 		}
-		defer input.Close()
+	} else {
+		res = count(input, *lines, *numBytes)
 	}
-	fmt.Println(count(input, *lines, *numBytes))
+	fmt.Println(res)
 
 }
