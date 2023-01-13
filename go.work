@@ -1,6 +1,7 @@
 go 1.19
 
 use (
+	./fileSystem/walk
 	./interacting/todo
 	./wordcounter/wc
 	./workingFiles/mdp
