@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -14,9 +15,11 @@ type config struct {
 	size int64
 	list bool
 	del  bool
+	wLog io.Writer
 }
 
 func run(root string, out io.Writer, cfg config) error {
+	delLogger := log.New(cfg.wLog, "DELETED: ", log.LstdFlags)
 	return filepath.Walk(root, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -30,7 +33,7 @@ func run(root string, out io.Writer, cfg config) error {
 			return listFile(path, out)
 		}
 		if cfg.del {
-			return delFile(path)
+			return delFile(path, delLogger)
 		}
 
 		return listFile(path, out)
@@ -43,9 +46,23 @@ func main() {
 	size := flag.Int64("size", 0, "the minimum size of the files to list")
 	list := flag.Bool("list", false, "list all files")
 	delete := flag.Bool("del", false, "delete files")
+	log := flag.String("log", "", "Log deleted files to this file")
 	flag.Parse()
 
-	c := config{*ext, *size, *list, *delete}
+	var (
+		delLog = os.Stdout
+		err    error
+	)
+	if *log != "" {
+		delLog, err = os.OpenFile(*log, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0644)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		defer delLog.Close()
+
+	}
+	c := config{*ext, *size, *list, *delete, delLog}
 
 	if err := run(*root, os.Stdout, c); err != nil {
 		fmt.Fprintln(os.Stderr, err)

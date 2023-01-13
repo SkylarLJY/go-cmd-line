@@ -35,16 +35,20 @@ func TestRun(t *testing.T) {
 		expected string
 	}{
 		// test filtering
-		{"NoFilter", "testdata", config{"", 0, true, false}, "testdata/dir.log\ntestdata/dir2/script.sh\n"},
-		{"FilterExtMatch", "testdata", config{".log", 0, true, false}, "testdata/dir.log\n"},
-		{"FilterExtNoMatch", "testdata", config{".vim", 0, true, false}, ""},
-		{"FilterExtSizeMatch", "testdata", config{".log", 10, true, false}, "testdata/dir.log\n"},
-		{"FilterExtSizeNoMatch", "testdata", config{".log", 100, true, false}, ""},
+		{"NoFilter", "testdata", config{"", 0, true, false, nil}, "testdata/dir.log\ntestdata/dir2/script.sh\n"},
+		{"FilterExtMatch", "testdata", config{".log", 0, true, false, nil}, "testdata/dir.log\n"},
+		{"FilterExtNoMatch", "testdata", config{".vim", 0, true, false, nil}, ""},
+		{"FilterExtSizeMatch", "testdata", config{".log", 10, true, false, nil}, "testdata/dir.log\n"},
+		{"FilterExtSizeNoMatch", "testdata", config{".log", 100, true, false, nil}, ""},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			var buffer bytes.Buffer
+			var (
+				buffer    bytes.Buffer
+				logBuffer bytes.Buffer
+			)
+			tc.cfg.wLog = &logBuffer
 			if err := run(tc.root, &buffer, tc.cfg); err != nil {
 				t.Fatal(err)
 			}
@@ -66,13 +70,17 @@ func TestRunDelExt(t *testing.T) {
 		expected string
 	}{
 		{"DelExtNoMatch", config{ext: ".log", del: true}, ".vim", 0, 10, ""},
-		// {"DelExtMatch", config{ext: ".log", del: true}, "", 10, 0, ""},
-		// {"DelExtMixed", config{ext: ".log", del: true}, ".gz", 5, 5, ""},
+		{"DelExtMatch", config{ext: ".log", del: true}, "", 10, 0, ""},
+		{"DelExtMixed", config{ext: ".log", del: true}, ".gz", 5, 5, ""},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			var buffer bytes.Buffer
+			var (
+				buffer    bytes.Buffer
+				logBuffer bytes.Buffer
+			)
+			tc.cfg.wLog = &logBuffer
 			tempDir, cleanup := createTempDir(t, map[string]int{
 				tc.cfg.ext:  tc.nDel,
 				tc.extNoDel: tc.nNoDel,
@@ -85,6 +93,13 @@ func TestRunDelExt(t *testing.T) {
 			res := buffer.String()
 			if res != tc.expected {
 				t.Errorf("expected %q but got %q\n", tc.expected, res)
+			}
+
+			// check delete log
+			expLogLines := tc.nDel + 1
+			lines := bytes.Split(logBuffer.Bytes(), []byte("\n"))
+			if len(lines) != expLogLines {
+				t.Errorf("Expected %d lines of log but got %d\n", expLogLines, len(lines))
 			}
 
 			filesLeft, err := os.ReadDir(tempDir)
