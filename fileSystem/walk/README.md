@@ -8,3 +8,7 @@ Test helpers: when testing file deletion, we change the structure of the fs. Aut
 Good practice for cmd line tools to provide feedbacks to user with stdout: `log.Logger`
 
 `go install` to install the cmd line tool to go bin
+
+Archiving files: backup before deletion 
+
+`%q` escapes `\n` and prints a string with quotation marks

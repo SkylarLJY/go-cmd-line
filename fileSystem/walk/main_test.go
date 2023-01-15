@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -35,11 +36,11 @@ func TestRun(t *testing.T) {
 		expected string
 	}{
 		// test filtering
-		{"NoFilter", "testdata", config{"", 0, true, false, nil}, "testdata/dir.log\ntestdata/dir2/script.sh\n"},
-		{"FilterExtMatch", "testdata", config{".log", 0, true, false, nil}, "testdata/dir.log\n"},
-		{"FilterExtNoMatch", "testdata", config{".vim", 0, true, false, nil}, ""},
-		{"FilterExtSizeMatch", "testdata", config{".log", 10, true, false, nil}, "testdata/dir.log\n"},
-		{"FilterExtSizeNoMatch", "testdata", config{".log", 100, true, false, nil}, ""},
+		{"NoFilter", "testdata", config{"", 0, true, false, nil, ""}, "testdata/dir.log\ntestdata/dir2/script.sh\n"},
+		{"FilterExtMatch", "testdata", config{".log", 0, true, false, nil, ""}, "testdata/dir.log\n"},
+		{"FilterExtNoMatch", "testdata", config{".vim", 0, true, false, nil, ""}, ""},
+		{"FilterExtSizeMatch", "testdata", config{".log", 10, true, false, nil, ""}, "testdata/dir.log\n"},
+		{"FilterExtSizeNoMatch", "testdata", config{".log", 100, true, false, nil, ""}, ""},
 	}
 
 	for _, tc := range testCases {
@@ -108,6 +109,62 @@ func TestRunDelExt(t *testing.T) {
 			}
 			if len(filesLeft) != tc.nNoDel {
 				t.Errorf("expected %d files left but have %d files left\n", tc.nNoDel, len(filesLeft))
+			}
+		})
+	}
+}
+
+func TestArchiveFile(t *testing.T) {
+	testCases := []struct {
+		name         string
+		cfg          config
+		extNoArchive string
+		nArchive     int
+		nNoArchive   int
+	}{
+		{"ArchiveExtNoMatch", config{ext: ".log"}, ".vim", 0, 3},
+		{"ArchiveExtMatch", config{ext: ".log"}, ".vim", 3, 0},
+		{"ArchiveExtMixed", config{ext: ".log"}, ".vim", 3, 3},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var buffer bytes.Buffer
+			tempDir, cleanup := createTempDir(t, map[string]int{
+				tc.cfg.ext:      tc.nArchive,
+				tc.extNoArchive: tc.nNoArchive,
+			})
+			defer cleanup()
+
+			archiveDir, cleanupArchive := createTempDir(t, nil) // create an empty dir for archived files
+			defer cleanupArchive()
+
+			tc.cfg.archive = archiveDir
+			if err := run(tempDir, &buffer, tc.cfg); err != nil {
+				t.Fatal(err)
+			}
+
+			pattern := filepath.Join(tempDir, fmt.Sprintf("*%s", tc.cfg.ext))
+			expFile, err := filepath.Glob(pattern)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			expOut := strings.Join(expFile, "\n")
+
+			// remove the last new line in output buffer before comparison
+			res := strings.TrimSpace(buffer.String())
+
+			if res != expOut {
+				t.Errorf("expected %q but got %q\n", expOut, res)
+			}
+
+			filesArchived, err := os.ReadDir(archiveDir)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(filesArchived) != tc.nArchive {
+				t.Errorf("expected to have archived %d files but got %d\n", tc.nArchive, len(filesArchived))
 			}
 		})
 	}
