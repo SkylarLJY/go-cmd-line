@@ -3,6 +3,7 @@ go 1.19
 use (
 	./fileSystem/walk
 	./interacting/todo
+	./performance/colStat
 	./wordcounter/wc
 	./workingFiles/mdp
 )
