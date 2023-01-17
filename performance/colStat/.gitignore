@@ -1,0 +1,5 @@
+*.txt
+*.pprof
+colStat*
+*.csv
+*.out
