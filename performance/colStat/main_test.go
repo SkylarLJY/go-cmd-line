@@ -63,5 +63,4 @@ func BenchmarkRun(b *testing.B) {
 			b.Error(err)
 		}
 	}
-
 }

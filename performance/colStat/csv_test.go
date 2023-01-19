@@ -29,6 +29,8 @@ func TestOps(t *testing.T) {
 	}{
 		{"Sum", sum, []float64{6, .6, 834}},
 		{"Avg", avg, []float64{2, .2, 166.8}},
+		{"Min", min, []float64{1, .1, 90}},
+		{"Max", max, []float64{3, .3, 444}},
 	}
 
 	for _, tc := range testcases {
@@ -86,5 +88,17 @@ func TestCSV2Float(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func BenchmarkMin(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		min([]float64{1, 2, 3, 4, 5})
+	}
+}
+
+func BenchmarkMax(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		max([]float64{1, 2, 3, 4, 5})
 	}
 }
