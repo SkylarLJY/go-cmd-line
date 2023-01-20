@@ -4,6 +4,9 @@ use (
 	./fileSystem/walk
 	./interacting/todo
 	./performance/colStat
+	./processes/goci
+	./processes/goci/testdata/tool
+	./processes/goci/testdata/toolErr
 	./wordcounter/wc
 	./workingFiles/mdp
 )

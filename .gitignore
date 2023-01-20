@@ -1,2 +1,6 @@
 *.epub
 *.pdf
+*.log
+*.json
+rsc/
+.DS_STORE
