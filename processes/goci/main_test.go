@@ -13,7 +13,7 @@ func TestRun(t *testing.T) {
 		out    string
 		expErr error
 	}{
-		{"success", "./testdata/tool", "Go build: SUCCESS\n", nil},
+		{"success", "./testdata/tool", "Go build: SUCCESS\nGo test: SUCCESS\n", nil},
 		{"fail", "./testdata/toolErr", "", &stepErr{step: "go build"}},
 	}
 
