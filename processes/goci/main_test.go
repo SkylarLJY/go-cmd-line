@@ -13,8 +13,9 @@ func TestRun(t *testing.T) {
 		out    string
 		expErr error
 	}{
-		{"success", "./testdata/tool", "Go build: SUCCESS\nGo test: SUCCESS\n", nil},
+		{"success", "./testdata/tool", "Go build: SUCCESS\nGo test: SUCCESS\nGo fmt: SUCCESS\n", nil},
 		{"fail", "./testdata/toolErr", "", &stepErr{step: "go build"}},
+		{"failfmt", "./testdata/toolFmtErr", "", &stepErr{step: "go fmt"}},
 	}
 
 	for _, tc := range testcase {
