@@ -9,4 +9,6 @@ Running external commands: some external cmds can potentially hang due to networ
 
 External env changes and to ensure the execution for testing of external commands we can
 1. instantiate a local service (eg. a local git server)
-2. mock the service
+2. mock the service: doesn't need to execute the command on the testing machine, can simulate abnormal conditions
+    - `TestHelperPrecess()` to replace the regular testing binary
+    - `GO_WANT_HELPER_PROCESS` set to 1 to only execute this function as part of the mock test
