@@ -28,6 +28,7 @@ func (s *stepErr) Unwrap() error {
 }
 
 var (
-	ErrValidation = errors.New("validation failed")
-	ErrSignal     = errors.New("received signal")
+	ErrValidation     = errors.New("validation failed")
+	ErrSignal         = errors.New("received signal")
+	ErrHighComplecity = errors.New("high code complexity")
 )
