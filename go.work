@@ -8,6 +8,7 @@ use (
 	./processes/goci/testdata/tool
 	./processes/goci/testdata/toolErr
 	./processes/goci/testdata/toolFmtErr
+	./processes/goci/testdata/toolLintErr
 	./wordcounter/wc
 	./workingFiles/mdp
 )

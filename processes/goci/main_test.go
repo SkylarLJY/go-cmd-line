@@ -108,14 +108,15 @@ func TestRun(t *testing.T) {
 		mockCmd  func(ctx context.Context, name string, args ...string) *exec.Cmd
 	}{
 		{"success", "./testdata/tool",
-			"Go build: SUCCESS\nGo test: SUCCESS\nGo fmt: SUCCESS\nGit push: SUCCESS\n",
+			"Go build: SUCCESS\nGo test: SUCCESS\nGo fmt: SUCCESS\nGit push: SUCCESS\nGolang Lint: SUCCESS\n",
 			nil, true, nil},
 		{"successMock", "./testdata/tool",
-			"Go build: SUCCESS\nGo test: SUCCESS\nGo fmt: SUCCESS\nGit push: SUCCESS\n",
+			"Go build: SUCCESS\nGo test: SUCCESS\nGo fmt: SUCCESS\nGit push: SUCCESS\nGolang Lint: SUCCESS\n",
 			nil, false, mockCmdContext},
 		{"fail", "./testdata/toolErr", "", &stepErr{step: "go build"}, false, nil},
 		{"failfmt", "./testdata/toolFmtErr", "", &stepErr{step: "go fmt"}, false, nil},
 		{"failTimeout", "./testdata/tool", "", context.DeadlineExceeded, false, mockCmdTimeout},
+		{"failLint", "./testdata/toolLintErr", "", &stepErr{step: "golangci-lint"}, false, mockCmdContext},
 	}
 
 	for _, tc := range testcase {
