@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"io"
 	"os"
 	"os/exec"
 )
@@ -33,4 +34,11 @@ func gitCredCheck(dir string) error {
 		}
 	}
 	return nil
+}
+
+func gitSwitchBranch(branch, dir string) error {
+	cmd := exec.Command("git", "checkout", branch)
+	cmd.Dir = dir
+	cmd.Stdout = io.Discard
+	return cmd.Run()
 }

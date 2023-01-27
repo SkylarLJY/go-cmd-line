@@ -67,7 +67,16 @@ func run(proj string, out io.Writer) error {
 
 func main() {
 	proj := flag.String("p", "", "project directory")
+	branch := flag.String("b", "", "target brance")
 	flag.Parse()
+
+	if *branch != "" {
+		if err := gitSwitchBranch(*branch, *proj); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+
+	}
 
 	if err := run(*proj, os.Stdout); err != nil {
 		fmt.Fprintln(os.Stderr, err)
