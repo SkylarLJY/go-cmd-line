@@ -31,4 +31,5 @@ var (
 	ErrValidation     = errors.New("validation failed")
 	ErrSignal         = errors.New("received signal")
 	ErrHighComplecity = errors.New("high code complexity")
+	ErrGitCredMissing = errors.New("missing git credential")
 )

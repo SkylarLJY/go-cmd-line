@@ -33,6 +33,10 @@ func run(proj string, out io.Writer) error {
 
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 
+	if err := gitCredCheck(proj); err != nil {
+		return err
+	}
+
 	go func() {
 		for _, s := range pipeline {
 			msg, err := s.execute()
