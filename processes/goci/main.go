@@ -7,25 +7,31 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 type executer interface {
 	execute() (string, error)
 }
 
-func run(proj string, out io.Writer) error {
+// var pipeline []executer
+
+func run(proj, branch, pipelineFile string, out io.Writer) error {
 	if proj == "" {
 		return fmt.Errorf("project directory is required:%w", ErrValidation)
 	}
 
-	pipeline := make([]executer, 6)
-	pipeline[0] = newStep("go build", "go", "Go build: SUCCESS", proj, []string{"build", ".", "errors"})
-	pipeline[1] = newStep("go test", "go", "Go test: SUCCESS", proj, []string{"test", "-v"})
-	pipeline[2] = newExceptionStep("go fmt", "gofmt", "Go fmt: SUCCESS", proj, []string{"-l", "."})
-	pipeline[3] = newTimeoutStep("git push", "git", "Git push: SUCCESS", proj, []string{"push", "origin", "main"}, 10*time.Second)
-	pipeline[4] = newStep("golangci-lint", "golangci-lint", "Golang Lint: SUCCESS", proj, []string{"run"})
-	pipeline[5] = newPrintStep("gocyclo", "gocyclo", "Gocyclo: SUCCESS", proj, []string{"."})
+	pipeline, err := initPipeline(pipelineFile, proj, branch)
+	if err != nil {
+		return err
+	}
+
+	// pipeline := make([]executer, 6)
+	// pipeline[0] = newStep("go build", "go", "Go build: SUCCESS", proj, []string{"build", ".", "errors"})
+	// pipeline[1] = newStep("go test", "go", "Go test: SUCCESS", proj, []string{"test", "-v"})
+	// pipeline[2] = newExceptionStep("go fmt", "gofmt", "Go fmt: SUCCESS", proj, []string{"-l", "."})
+	// pipeline[3] = newTimeoutStep("git push", "git", "Git push: SUCCESS", proj, []string{"push", "origin", "main"}, 10*time.Second)
+	// pipeline[4] = newStep("golangci-lint", "golangci-lint", "Golang Lint: SUCCESS", proj, []string{"run"})
+	// pipeline[5] = newPrintStep("gocyclo", "gocyclo", "Gocyclo: SUCCESS", proj, []string{"."})
 
 	sig := make(chan os.Signal, 1)
 	errCh := make(chan error)
@@ -67,18 +73,26 @@ func run(proj string, out io.Writer) error {
 
 func main() {
 	proj := flag.String("p", "", "project directory")
-	branch := flag.String("b", "", "target brance")
+	branch := flag.String("b", "main", "target brance")
+	pipelineFile := flag.String("pipeline", "pipeline.json", "pipeline config")
 	flag.Parse()
 
-	if *branch != "" {
-		if err := gitSwitchBranch(*branch, *proj); err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
+	// if *branch != "" {
+	// 	if err := gitSwitchBranch(*branch, *proj); err != nil {
+	// 		fmt.Fprintln(os.Stderr, err)
+	// 		os.Exit(1)
+	// 	}
+	// }
 
-	}
+	// pl, err := initPipeline(*pipelineFile, *proj)
+	// if err != nil {
+	// 	fmt.Fprintln(os.Stderr, err)
+	// 	os.Exit(1)
+	// }
 
-	if err := run(*proj, os.Stdout); err != nil {
+	// pipeline = pl
+
+	if err := run(*proj, *branch, *pipelineFile, os.Stdout); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}

@@ -136,7 +136,7 @@ func TestRun(t *testing.T) {
 			}
 
 			var buffer bytes.Buffer
-			err := run(tc.runDir, &buffer)
+			err := run(tc.runDir, "main", "./pipeline.json", &buffer)
 			if tc.expErr != nil {
 				if err == nil || !errors.Is(err, tc.expErr) {
 					t.Errorf("Expected error %q but got %q", tc.expErr, err)
@@ -181,7 +181,7 @@ func TestRunKill(t *testing.T) {
 			defer signal.Stop(expSigCh)
 
 			go func() {
-				errCh <- run(tc.proj, io.Discard)
+				errCh <- run(tc.proj, "main", "pipeline.json", io.Discard)
 			}()
 
 			go func() {

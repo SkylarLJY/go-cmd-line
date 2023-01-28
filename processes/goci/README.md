@@ -16,3 +16,5 @@ External env changes and to ensure the execution for testing of external command
 Handling signals: properly handle signals to clean up resources, save data & exit cleanly on interrupt 
 
 **Bug in example code?** `TestKillRun` testcase 3 with `SIGQUIT` should return timeout error instead of nil as this signal should not be picked up by the program & it will run until timeout. 
+
+Handling json: need to export (capitalize) the field name to unmarshall

@@ -1,0 +1,8 @@
+[
+    {"name":"go build", "Cmd":"go build .", "Message":"Go build: SUCCESS", "Timeout":false, "Exception": false, "Print":false},
+    {"name":"go test", "Cmd":"go test -v", "Message":"Go test: SUCCESS", "Timeout":false, "Exception": false, "Print":false},
+    {"name":"go fmt", "Cmd":"gofmt -l .", "Message":"Go fmt: SUCCESS", "Timeout":false, "Exception": true, "Print":false},
+    {"name":"git push", "Cmd":"git push origin", "Message":"Git push: SUCCESS", "Timeout":true, "Exception": false, "Print":false},
+    {"name":"golangci-lint", "Cmd":"golangci-lint run", "Message":"Golang Lint: SUCCESS", "Timeout":false, "Exception": false, "Print":false},
+    {"name":"gocyclo", "Cmd":"gocyclo .", "Message":"Gocyclo: SUCCESS", "Timeout":false, "Exception": false, "Print":true}
+]
