@@ -1,6 +1,8 @@
 go 1.19
 
 use (
+	./cobra/pScan
+	./cobra/pScan/scan
 	./fileSystem/walk
 	./interacting/todo
 	./performance/colStat
