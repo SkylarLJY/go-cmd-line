@@ -37,7 +37,7 @@ var addCmd = &cobra.Command{
 	Short:   "add new host(s) to the list",
 	Args:    cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		hostFile, err := cmd.Flags().GetString("host-file")
+		hostFile, err := cmd.Flags().GetString("hosts-file")
 		if err != nil {
 			return err
 		}
